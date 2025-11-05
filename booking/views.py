@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -36,6 +37,12 @@ def slot_list(request, service_id):
 @login_required
 def booking_create(request, slot_id):
     slot = get_object_or_404(Slot, pk=slot_id)
+
+    # Permitir reservar solo a usuarios del grupo "Cliente"
+    if not request.user.groups.filter(name="Cliente").exists():
+        messages.warning(request, "Tu cuenta no tiene permisos para reservar. Solicita el rol 'Cliente'.")
+        return redirect("booking:service_list")
+
     if request.method == "POST":
         form = BookingForm(request.POST, slot=slot, user=request.user)
         if form.is_valid():
@@ -64,7 +71,7 @@ def my_bookings(request):
 
 
 def signup(request):
-    """Autoregistro de usuarios con UserCreationForm."""
+    """Autoregistro de usuarios con UserCreationForm y asignación al grupo 'Cliente'."""
     if request.user.is_authenticated:
         return redirect("booking:service_list")
 
@@ -72,6 +79,11 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+
+            # Asignar automáticamente al grupo "Cliente" (se crea si no existe)
+            cliente_group, _ = Group.objects.get_or_create(name="Cliente")
+            user.groups.add(cliente_group)
+
             login(request, user)  # inicia sesión automáticamente
             messages.success(request, "Cuenta creada. ¡Bienvenido!")
             return redirect("booking:service_list")
@@ -79,6 +91,7 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, "registration/signup.html", {"form": form})
+
 
 def docs_why_django(request):
     """
