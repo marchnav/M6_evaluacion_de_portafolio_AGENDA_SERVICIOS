@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}¿Por qué Django? · Investigación{% endblock %}
+{% block content %}
+  <h1>¿Por qué Django para aplicaciones empresariales?</h1>
+  <p class="muted">Investigación: características, ventajas y comparación con otros frameworks en el ecosistema Python.</p>
+
+  <article class="card">
+    <h2>Características clave</h2>
+    <ul>
+      <li><strong>ORM maduro</strong>: modela datos con clases, migraciones automáticas y consultas seguras.</li>
+      <li><strong>Autenticación & sesiones</strong>: login, logout, recuperación de contraseñas y permisos/grupos integrados.</li>
+      <li><strong>Admin automático</strong>: backoffice listo para CRUD, filtros, búsquedas y acciones.</li>
+      <li><strong>Plantillas</strong>: render seguro del lado servidor, herencia (base.html) y context processors.</li>
+      <li><strong>Seguridad</strong> por defecto: CSRF, XSS, clickjacking protection, password hashers.</li>
+      <li><strong>Ecosistema y LTS</strong>: versiones estables, documentación extensa y comunidad grande.</li>
+    </ul>
+  </article>
+
+  <article class="card" style="margin-top:12px">
+    <h2>Ventajas para desarrollo rápido y escalable</h2>
+    <ul>
+      <li><strong>Productividad</strong>: “baterías incluidas” reducen dependencias y decisiones de base.</li>
+      <li><strong>Escalabilidad</strong>: arquitectura MVT, sitúa la lógica en apps reutilizables; soporta cache, ORM con índices, y separación de capas.</li>
+      <li><strong>Consistencia</strong>: patrones y convenciones claras facilitan equipos y mantenimiento.</li>
+      <li><strong>Observabilidad</strong>: integración sencilla con logging, middlewares y herramientas de monitoreo.</li>
+    </ul>
+  </article>
+
+  <article class="card" style="margin-top:12px">
+    <h2>Comparación con otros frameworks</h2>
+
+    <h3>Django vs Flask</h3>
+    <ul>
+      <li><strong>Django</strong>: framework completo (ORM, auth, admin, templates). Ideal para proyectos empresariales con requisitos de seguridad, permisos y backoffice desde el día 1.</li>
+      <li><strong>Flask</strong>: microframework. Más flexible, pero requiere elegir/extender (ORM, auth, admin) con múltiples extensiones. Mejor para servicios muy a medida o APIs pequeñas.</li>
+    </ul>
+
+    <h3>Django vs FastAPI</h3>
+    <ul>
+      <li><strong>Django</strong>: server-side rendering + ORM + admin listos. Muy bueno para apps web transaccionales con usuarios, permisos, formularios y vistas HTML.</li>
+      <li><strong>FastAPI</strong>: orientado a <em>APIs</em> asíncronas y tipadas, performance excelente para servicios backend modernos. Para UI/admin se requieren soluciones externas.</li>
+    </ul>
+
+    <p>Conclusión: Para un <strong>producto web empresarial</strong> con autenticación, permisos, formularios, plantillas y backoffice desde el inicio, <strong>Django reduce el time-to-market</strong> sin sacrificar buenas prácticas.</p>
+  </article>
+
+  <article class="card" style="margin-top:12px">
+    <h2>Cómo lo aplicamos en este proyecto</h2>
+    <ul>
+      <li>Models: <code>Service</code>, <code>Slot</code>, <code>Booking</code> con validaciones y relaciones.</li>
+      <li>Auth: login/logout, autoregistro con <code>UserCreationForm</code>.</li>
+      <li>Permisos: staff/admin gestionan el catálogo desde <strong>/admin</strong>.</li>
+      <li>Templates: listado/detalle de servicios, horarios y reservas (<strong>SSR</strong> seguro).</li>
+      <li>Admin: filtros, búsquedas y acciones masivas para reservas.</li>
+    </ul>
+  </article>
+
+  <p style="margin-top:16px">
+    <a class="btn" href="{% url 'booking:service_list' %}">Volver al inicio</a>
+  </p>
+{% endblock %}

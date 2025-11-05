@@ -79,3 +79,10 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, "registration/signup.html", {"form": form})
+
+def docs_why_django(request):
+    """
+    Página de investigación: por qué Django para aplicaciones empresariales,
+    ventajas vs otros frameworks y cómo facilita desarrollo rápido y escalable.
+    """
+    return render(request, "docs/why_django.html")

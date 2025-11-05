@@ -10,5 +10,7 @@ urlpatterns = [
     path("reservar/<int:slot_id>/", views.booking_create, name="booking_create"),
     path("mis-reservas/", views.my_bookings, name="my_bookings"),
     path("signup/", views.signup, name="signup"),
+    path("docs/por-que-django/", views.docs_why_django, name="docs_why_django"),
+
 
 ]
