@@ -1,0 +1,142 @@
+DOCUMENTACIÓN DEL PROYECTO — Agenda de Servicios (Django)
+
+Este proyecto de Agenda de Servicios en Django puede usarse en empresas de consultoría, salud, belleza, educación,
+ mantención técnica y servicios profesionales para publicar su catálogo, ofrecer bloques horarios (slots) y gestionar 
+ reservas con control de cupos. Permite a clientes registrarse y autogestionar sus citas, mientras el personal administrativo 
+ crea y modifica servicios y horarios desde el panel de administración, manteniendo trazabilidad de las reservas 
+ (estado pendiente/confirmada/cancelada) y un historial por usuario. En términos operativos, 
+ reduce la fricción de coordinación (llamadas, WhatsApp, planillas), mejora la ocupación de agenda, evita sobreventa
+mediante validaciones, y facilita reportes básicos desde el Admin. Además, puede ampliarse con pagos en línea, recordatorios
+ por correo/SMS, exportación CSV, integración con calendarios corporativos y reglas de negocio
+  (políticas de cancelación, límites por usuario, precios dinámicos), convirtiéndose en un componente real de la cadena de valor de la empresa.
+
+
+1) Descripción general
+Aplicación web en Django 5 que permite publicar servicios ofrecidos por un negocio, crear bloques horarios (slots) para atender
+ esos servicios y que usuarios autenticados reserven cupos disponibles. Incluye:
+- Autenticación (login/logout) y autoregistro (signup).
+- Control de cupos por horario.
+- Panel Django Admin para gestionar Servicios, Slots y Reservas.
+- Página de investigación “¿Por qué Django?” cumpliendo el requisito de investigación.
+
+2) Requisitos previos
+- Python 3.11+ (probado con 3.13)
+- pip
+- Sistema operativo: Windows 10/11 (validado con PowerShell), o equivalente en Linux/Mac.
+
+3) Estructura del proyecto (resumen)
+config/                 Proyecto Django (settings, urls, wsgi)
+booking/                App principal
+  ├─ models.py          Modelos: Service, Slot, Booking
+  ├─ views.py           Vistas públicas: catálogo, detalle, slots, reserva, mis reservas, signup, docs
+  ├─ urls.py            Rutas namespaced (app_name="booking")
+  ├─ forms.py           BookingForm con validación de cupos y duplicados
+  └─ admin.py           Admin personalizado (filtros, búsquedas y acciones)
+templates/
+  ├─ base.html          Layout general (navbar, mensajes, responsive)
+  ├─ booking/
+  │   ├─ service_list.html
+  │   ├─ service_detail.html
+  │   ├─ slot_list.html
+  │   ├─ booking_form.html
+  │   └─ my_bookings.html
+  ├─ registration/
+  │   ├─ login.html
+  │   └─ signup.html
+  └─ docs/
+      └─ why_django.html
+
+4) Modelado de datos
+4.1) Service
+- Campos: name, description, price, is_active
+- Propósito: catálogo de lo que ofrece el negocio.
+
+4.2) Slot (bloque horario)
+- Campos: service(FK), start(DateTime), end(DateTime), capacity(≥1)
+- Reglas: end > start; capacity ≥ 1 (CheckConstraints)
+- Propósito: agenda de horarios disponibles para cada service.
+
+4.3) Booking (reserva)
+- Campos: slot(FK), user(FK), status (PENDING/CONFIRMED/CANCELLED), notes, created_at
+- Restricción: unique_together(slot, user) para evitar reservas duplicadas del mismo usuario en el mismo horario.
+
+5) Formularios y validaciones
+- BookingForm: recibe (slot, user) por kwargs para validar:
+  a) No duplicar reservas no canceladas del mismo usuario en ese slot.
+  b) No exceder el cupo (capacity) contando reservas no canceladas.
+- Mensajería: se utilizan mensajes de Django para feedback (exitos/errores).
+
+6) Autenticación y autorización
+- Autenticación:
+  - Login: /accounts/login/
+  - Logout: /accounts/logout/  (redirige a ‘/’)
+  - Signup (autoregistro): /signup/  (crea usuario y lo autentica)
+  - Redirecciones: LOGIN_REDIRECT_URL='/' y LOGOUT_REDIRECT_URL='/'.
+- Autorización:
+  - Usuarios autenticados pueden reservar y ver “Mis reservas”.
+  - Usuarios staff/admin gestionan Servicios, Slots y Bookings desde /admin.
+  - (Opcional) Se pueden añadir Grupos/Permisos por modelo si se requiere granularidad.
+
+7) Rutas principales (URLs)
+- ‘/’                                 → Lista de servicios (service_list)
+- ‘/servicio/<id>/’                    → Detalle del servicio + próximos slots (service_detail)
+- ‘/servicio/<id>/slots/’              → Lista de slots del servicio (slot_list)
+- ‘/reservar/<slot_id>/’               → Formulario de reserva (requiere login) (booking_create)
+- ‘/mis-reservas/’                     → Historial personal de reservas (requiere login) (my_bookings)
+- ‘/signup/’                           → Autoregistro de usuarios (signup)
+- ‘/accounts/login/’                   → Login
+- ‘/accounts/logout/’                  → Logout
+- ‘/docs/por-que-django/’              → Página de investigación (docs_why_django)
+
+8) Vistas y flujo de navegación (resumen)
+- Inicio → listar servicios → ver detalle → ver horarios → Reservar (si no autenticado, redirige a login) → Confirmar → “Mis reservas”.
+- En navbar:
+  - Usuarios no autenticados: “Iniciar sesión” y “Crear cuenta”.
+  - Usuarios autenticados: “Mis reservas” y “Cerrar sesión”.
+
+9) Plantillas y UX
+- base.html: estilos simples, legibles y responsive; navbar con enlaces de autenticación, botón a “Servicios”.
+- Páginas de booking: tablas y tarjetas con fechas, horas, capacidad y acciones claras.
+- Mensajes de estado (éxito/alerta/info) visibles en la parte superior del contenido.
+
+10) Panel de administración (Django Admin)
+- ServiceAdmin: list_display(name, price, is_active); filtros y búsqueda.
+- SlotAdmin: list_display(service, start, end, capacity); filtros por service y fecha.
+- BookingAdmin: list_display(slot, user, status, created_at); filtros por status/servicio/fecha; acciones masivas “Confirmar” y “Cancelar”.
+
+11) Pasos de ejecución (desde cero)
+1. Crear entorno virtual y activarlo:
+   python -m venv .venv
+   (Windows) .\.venv\Scripts\Activate
+2. Instalar dependencias:
+   pip install "Django>=5.0,<6.0"
+3. Generar y aplicar migraciones:
+   python manage.py makemigrations
+   python manage.py migrate
+4. Crear superusuario (para /admin):
+   python manage.py createsuperuser
+5. Ejecutar servidor:
+   python manage.py runserver
+6. Configurar datos iniciales:
+   - Entrar a /admin → crear Service.
+   - Crear uno o más Slot futuros (con capacity ≥ 1).
+7. Probar flujo de reserva:
+   - Registrarse en /signup/ o iniciar sesión en /accounts/login/.
+   - Ir a ‘/’ → servicio → horarios → reservar → confirmar → revisar “/mis-reservas/”.
+
+12) Pruebas manuales recomendadas
+- Caso A: reservar un slot con cupo disponible → OK.
+- Caso B: mismo usuario intenta reservar el mismo slot dos veces → rechazo por duplicado.
+- Caso C: llenar capacidad del slot y un usuario adicional intenta reservar → rechazo por cupos.
+- Caso D: cerrar sesión → debe redirigir a ‘/’.
+- Caso E: iniciar sesión → debe redirigir a ‘/’.
+- Caso F: ingresar a /mis-reservas/ sin autenticación → redirige a login.
+
+13) Buenas prácticas y extensiones opcionales
+- Exportar CSV de reservas (vista protegida para staff).
+- Agregar página “Términos y condiciones” y “Política de privacidad”.
+- Añadir paginación en listados de servicios/slots.
+- En producción: STATIC_ROOT, configuración de base de datos, SECRET_KEY por variables de entorno, DEBUG=False, ALLOWED_HOSTS.
+
+14) Licencia y uso
+- Uso educativo y para portafolio. Adaptable a necesidades reales de negocio.
