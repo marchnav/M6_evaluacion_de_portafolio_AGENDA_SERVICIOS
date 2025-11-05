@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Mis reservas{% endblock %}
+{% block content %}
+  <h1>Mis reservas</h1>
+  <p class="muted">Aquí verás tus reservas más recientes.</p>
+
+  {% if bookings %}
+    <div class="card">
+      <ul style="list-style:none;padding:0;margin:0">
+        {% for b in bookings %}
+          <li style="padding:12px 0;border-bottom:1px solid #e5e7eb">
+            <div style="font-weight:600">
+              {{ b.slot.service.name }} — {{ b.slot.start|date:"d/m/Y H:i" }} → {{ b.slot.end|date:"H:i" }}
+            </div>
+            <div class="muted" style="margin-top:4px">
+              Estado: <strong>{{ b.get_status_display }}</strong> · Creada: {{ b.created_at|date:"d/m/Y H:i" }}
+              {% if b.notes %} · Notas: {{ b.notes }}{% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <p class="muted">Aún no tienes reservas.</p>
+  {% endif %}
+{% endblock %}

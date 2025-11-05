@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Horarios · {{ service.name }}{% endblock %}
+{% block content %}
+  <h1>Horarios — {{ service.name }}</h1>
+  <p class="muted">Selecciona un horario para reservar.</p>
+
+  <div class="grid grid-2">
+    {% for slot in slots %}
+      <div class="card">
+        <p style="margin:0 0 6px 0">
+          <strong>{{ slot.start|date:"d/m/Y H:i" }}</strong> — {{ slot.end|date:"H:i" }}
+        </p>
+        <p class="muted" style="margin:0 0 10px 0">Cupos: {{ slot.capacity }}</p>
+        <a class="btn btn-primary" href="{% url 'booking:booking_create' slot.id %}">Reservar</a>
+      </div>
+    {% empty %}
+      <p class="muted">No hay horarios disponibles por ahora.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

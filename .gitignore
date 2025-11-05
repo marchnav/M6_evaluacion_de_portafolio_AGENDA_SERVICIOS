@@ -1,0 +1,39 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# --- Entorno virtual ---
+.venv/
+env/
+venv/
+
+# --- Django ---
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# Archivos de migración compilados (se versionan los .py, no los .pyc)
+**/migrations/__pycache__/
+
+# --- Configuración local ---
+*.env
+.env.*
+.envrc
+.vscode/
+.idea/
+
+# --- SO / Editor ---
+.DS_Store
+Thumbs.db
+
+# --- Coverage / Test ---
+.coverage
+htmlcov/
+.junit/
+
+# --- Cache ---
+*.cache
+.pytest_cache/

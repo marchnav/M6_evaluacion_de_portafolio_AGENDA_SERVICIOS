@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }} · Agenda{% endblock %}
+{% block content %}
+  <article class="card">
+    <h1 style="margin:0 0 8px 0">{{ service.name }}</h1>
+    <p class="muted" style="margin:0 0 12px 0">{{ service.description|default:"Sin descripción" }}</p>
+    <p style="font-weight:600;margin:0 0 16px 0">Precio: ${{ service.price }}</p>
+    <a class="btn" href="{% url 'booking:slot_list' service.id %}">Ver horarios disponibles</a>
+  </article>
+
+  <h2 style="margin-top:24px">Próximos horarios</h2>
+  <div class="grid grid-2">
+    {% for slot in upcoming_slots %}
+      <div class="card">
+        <p style="margin:0 0 6px 0">
+          <strong>{{ slot.start|date:"d/m/Y H:i" }}</strong> — {{ slot.end|date:"H:i" }}
+        </p>
+        <p class="muted" style="margin:0 0 10px 0">Cupos: {{ slot.capacity }}</p>
+        <a class="btn btn-primary" href="{% url 'booking:booking_create' slot.id %}">Reservar</a>
+      </div>
+    {% empty %}
+      <p class="muted">No hay horarios futuros para este servicio.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

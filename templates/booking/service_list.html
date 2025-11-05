@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Servicios · Agenda{% endblock %}
+{% block content %}
+  <h1>Servicios disponibles</h1>
+  <p class="muted">Elige un servicio para ver horarios y reservar.</p>
+
+  <div class="grid grid-3">
+    {% for s in services %}
+      <article class="card">
+        <h2 style="margin:0 0 6px 0">{{ s.name }}</h2>
+        <p class="muted" style="margin:0 0 10px 0">{{ s.description|default:"Sin descripción" }}</p>
+        <p style="font-weight:600;margin:0 0 12px 0">${{ s.price }}</p>
+        <a class="btn btn-primary" href="{% url 'booking:service_detail' s.pk %}">Ver detalles</a>
+      </article>
+    {% empty %}
+      <p>No hay servicios activos aún.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
